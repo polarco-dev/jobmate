@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bewerbungsübersicht</title>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+
+<link rel="stylesheet" href="style.css">
+
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+
+  
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Menü</span>
+      <button class="sidebar-toggle" id="sidebarToggle" title="Menü schließen">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="sidebar-item active" data-page="dashboard">
+        <i data-lucide="home"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="#" class="sidebar-item" data-page="settings">
+        <i data-lucide="settings"></i>
+        <span>Einstellungen</span>
+      </a>
+      <a href="#" class="sidebar-item" data-page="stats">
+        <i data-lucide="bar-chart-3"></i>
+        <span>Statistiken</span>
+      </a>
+      <a href="#" class="sidebar-item" data-page="help">
+        <i data-lucide="help-circle"></i>
+        <span>Hilfe & Anleitungen</span>
+      </a>
+      <div class="sidebar-divider"></div>
+      <button type="button" class="sidebar-action" id="sidebarExportPDF">
+        <i data-lucide="file-text"></i>
+        <span>Als PDF exportieren</span>
+      </button>
+      <button type="button" class="sidebar-action" id="sidebarExportJSON">
+        <i data-lucide="download"></i>
+        <span>Daten sichern (JSON)</span>
+      </button>
+      <button type="button" class="sidebar-action" id="sidebarImport">
+        <i data-lucide="upload"></i>
+        <span>Daten importieren</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div>© 2025 Jobmate • Version 1.1</div>
+      <div>Ein Projekt von <a href="https://polarco.de/" target="_blank" rel="noopener noreferrer">polarco.de</a></div>
+    </div>
+  </aside>
+
+  
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  
+  <header class="appbar">
+    <div class="header-left">
+      <button class="btn btn-icon sidebar-menu-btn" id="menuToggle" title="Menü öffnen">
+        <i data-lucide="menu"></i>
+      </button>
+      <button type="button" class="header-logo" id="headerLogo" title="Zum Dashboard">
+        <img src="assets/img/logo/jobmate-logo.png" alt="Jobmate Logo">
+      </button>
+    </div>
+    <div class="title">Bewerbungsübersicht</div>
+    <div class="header-right">
+      <button class="btn btn-primary" id="btnNew" title="Neuen Eintrag anlegen">
+        <i data-lucide="plus"></i>
+        <span>Neu</span>
+      </button>
+      <button class="btn btn-icon" id="btnTheme" title="Dark Mode umschalten" aria-label="Dark Mode umschalten">
+        <i data-lucide="moon"></i>
+      </button>
+    </div>
+  </header>
+
+  
+  <div class="wrap">
+    
+    
+    <div class="page active" id="dashboardPage">
+    
+    <div class="toolbar">
+      
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-icon stat-icon-primary">
+            <i data-lucide="briefcase"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-label">Gesamt</span>
+            <span class="stat-value" id="stTotal">0</span>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-icon stat-icon-warning">
+            <i data-lucide="clock"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-label">Offen</span>
+            <span class="stat-value" id="stOpen">0</span>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-icon stat-icon-success">
+            <i data-lucide="calendar-check"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-label">Vorstellung</span>
+            <span class="stat-value" id="stInterview">0</span>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-icon stat-icon-danger">
+            <i data-lucide="x-circle"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-label">Absagen</span>
+            <span class="stat-value" id="stReject">0</span>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="search-filter-bar">
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input type="text" id="searchInput" placeholder="Suche nach Firma, Position, Kontakt..." />
+        </div>
+        <div class="filter-group">
+          <label for="statusFilter">Status:</label>
+          <select id="statusFilter">
+            <option value="">Alle</option>
+            <option value="Offen">Offen</option>
+            <option value="Vorstellungsgespräch">Vorstellungsgespräch</option>
+            <option value="Absage">Absage</option>
+          </select>
+        </div>
+        <div class="dropdown filter-dropdown">
+          <button class="btn btn-filter" id="btnFilter" title="Weitere Filter">
+            <i data-lucide="filter"></i>
+            <span>Filter</span>
+          </button>
+          <div class="dropdown-menu" id="filterMenu">
+            <div class="dropdown-header">Weitere Filter</div>
+            <button class="filter-option" id="followUpFilterOption" data-active="false">
+              <div class="filter-option-content">
+                <div class="filter-option-icon">
+                  <i data-lucide="clock-alert"></i>
+                </div>
+                <div class="filter-option-text">
+                  <div class="filter-option-title">Follow-up benötigt</div>
+                  <div class="filter-option-desc" id="followUpFilterDesc">Offene Bewerbungen älter als 14 Tage</div>
+                </div>
+              </div>
+            </button>
+            <button class="filter-option" id="favoritesFilterOption" data-active="false">
+              <div class="filter-option-content">
+                <div class="filter-option-icon">
+                  <i data-lucide="star"></i>
+                </div>
+                <div class="filter-option-text">
+                  <div class="filter-option-title">Nur Favoriten</div>
+                  <div class="filter-option-desc">Nur favorisierte Bewerbungen anzeigen</div>
+                </div>
+              </div>
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" id="btnClearFilters">
+              <i data-lucide="x"></i>
+              <span>Alle Filter zurücksetzen</span>
+            </button>
+          </div>
+        </div>
+        <div class="view-toggle">
+          <button class="view-toggle-btn active" id="viewTable" title="Tabellen-Ansicht">
+            <i data-lucide="list"></i>
+          </button>
+          <button class="view-toggle-btn" id="viewBoard" title="Kanban-Board">
+            <i data-lucide="columns"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-dashboard-overview" id="mobileDashboardOverview">
+      <section class="mobile-overview-card mobile-overview-summary">
+        <h3><i data-lucide="activity"></i> Übersicht</h3>
+        <div class="mobile-overview-kpis">
+          <div>
+            <span>Offen</span>
+            <strong id="mobileOpenCount">0</strong>
+          </div>
+          <div>
+            <span>Follow-up</span>
+            <strong id="mobileFollowUpCount">0</strong>
+          </div>
+        </div>
+      </section>
+      <section class="mobile-overview-card">
+        <h3><i data-lucide="history"></i> Letzte Bewerbungen</h3>
+        <div class="mobile-overview-list" id="mobileRecentList">
+          <div class="mobile-overview-empty">Noch keine Bewerbungen.</div>
+        </div>
+      </section>
+    </div>
+
+    <input type="file" id="importFile" accept=".json" style="display: none;">
+
+    
+    <div class="tablewrap" id="entriesList" aria-live="polite">
+      <table id="tblEntries">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="sortable" data-sort="date">
+              Datum
+              <span class="sort-icon"></span>
+            </th>
+            <th class="sortable" data-sort="company">
+              Firma
+              <span class="sort-icon"></span>
+            </th>
+            <th class="sortable" data-sort="position">
+              Position
+              <span class="sort-icon"></span>
+            </th>
+            <th class="sortable" data-sort="type">
+              Art
+              <span class="sort-icon"></span>
+            </th>
+            <th class="sortable" data-sort="contact">
+              Kontakt
+              <span class="sort-icon"></span>
+            </th>
+            <th class="sortable" data-sort="address">
+              Anschrift
+              <span class="sort-icon"></span>
+            </th>
+            <th class="sortable" data-sort="status">
+              Status
+              <span class="sort-icon"></span>
+            </th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody id="entriesBody">
+            <tr>
+              <td colspan="9" class="empty-state">
+                <div class="empty-state-content">
+                  <div class="empty-state-icon">
+                    <i data-lucide="inbox"></i>
+                  </div>
+                  <h3>Noch keine Bewerbungen</h3>
+                  <p>Klicke auf "Neu" um deine erste Bewerbung zu erfassen</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+
+    
+    <div class="entries-cards" id="entriesCards" aria-live="polite"></div>
+    
+    
+    <div class="kanban-board" id="kanbanBoard" style="display: none;" aria-live="polite">
+      <div class="kanban-column" data-status="Offen">
+        <div class="kanban-column-header">
+          <div class="kanban-column-title">
+            <i data-lucide="clock"></i>
+            <span>Offen</span>
+          </div>
+          <div class="kanban-column-count" id="countOffen">0</div>
+        </div>
+        <div class="kanban-cards" id="cardsOffen"></div>
+      </div>
+      
+      <div class="kanban-column" data-status="Vorstellungsgespräch">
+        <div class="kanban-column-header">
+          <div class="kanban-column-title">
+            <i data-lucide="calendar-check"></i>
+            <span>Vorstellung</span>
+          </div>
+          <div class="kanban-column-count" id="countVorstellung">0</div>
+        </div>
+        <div class="kanban-cards" id="cardsVorstellung"></div>
+      </div>
+      
+      <div class="kanban-column" data-status="Absage">
+        <div class="kanban-column-header">
+          <div class="kanban-column-title">
+            <i data-lucide="x-circle"></i>
+            <span>Absage</span>
+          </div>
+          <div class="kanban-column-count" id="countAbsage">0</div>
+        </div>
+        <div class="kanban-cards" id="cardsAbsage"></div>
+      </div>
+    </div>
+    </div>
+    
+
+    
+    <div class="page" id="statsPage">
+      <div class="page-header">
+        <h1>
+          <i data-lucide="bar-chart-3"></i>
+          Erweiterte Statistiken
+        </h1>
+      </div>
+      <div class="stats-grid">
+        
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <i data-lucide="trending-up"></i>
+            <h3>Aktivität</h3>
+          </div>
+          <div class="stat-card-body">
+            <select id="activityPeriod" class="activity-period-select">
+              <option value="all" selected>Insgesamt</option>
+              <option value="month">Dieser Monat</option>
+              <option value="3months">Letzte 3 Monate</option>
+              <option value="6months">Letzte 6 Monate</option>
+              <option value="year">Dieses Jahr</option>
+            </select>
+            <div class="stat-big" id="statActivityCount">0</div>
+            <div class="stat-label" id="statActivityLabel">Bewerbungen diesen Monat</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <i data-lucide="target"></i>
+            <h3>Erfolgsquote</h3>
+          </div>
+          <div class="stat-card-body">
+            <div class="stat-big" id="statSuccessRate">0%</div>
+            <div class="stat-label">Vorstellungsgespräche pro Bewerbung</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <i data-lucide="x-circle"></i>
+            <h3>Absagequote</h3>
+          </div>
+          <div class="stat-card-body">
+            <div class="stat-big" id="statRejectionRate">0%</div>
+            <div class="stat-label" id="statRejectionCount">0 Absagen</div>
+          </div>
+        </div>
+
+        
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <i data-lucide="calendar-check"></i>
+            <h3>Anstehende Termine</h3>
+          </div>
+          <div class="stat-card-body" id="statUpcomingAppointments">
+            <div class="stat-label">Keine Termine</div>
+          </div>
+        </div>
+
+        <div class="stat-card stat-card-clickable" id="followUpCard">
+          <div class="stat-card-header">
+            <i data-lucide="alert-circle"></i>
+            <h3>Follow-up benötigt</h3>
+          </div>
+          <div class="stat-card-body">
+            <div class="stat-big" id="statOldApplications">0</div>
+            <div class="stat-label">Offene Bewerbungen älter als 14 Tage</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <i data-lucide="pie-chart"></i>
+            <h3>Bewerbungskanäle</h3>
+          </div>
+          <div class="stat-card-body" id="statChannels">
+            <div class="stat-label">Keine Daten</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+    
+    <div class="page" id="settingsPage">
+      <div class="page-header">
+        <h1>
+          <i data-lucide="settings"></i>
+          Persönliche Angaben & Einstellungen
+        </h1>
+      </div>
+      <div class="page-content">
+        <form id="settingsForm">
+          <div class="grid">
+            <div>
+              <label for="firstName">Vorname</label>
+              <input type="text" id="firstName" placeholder="Max" />
+            </div>
+            <div>
+              <label for="lastName">Nachname</label>
+              <input type="text" id="lastName" placeholder="Mustermann" />
+            </div>
+            <div style="grid-column:1/-1">
+              <label for="customerNumber">BG-Nummer / Kundennummer</label>
+              <input type="text" id="customerNumber" placeholder="z. B. BG-123456" />
+            </div>
+          </div>
+          
+          <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-light);">
+            <h3 style="font-size: var(--fs-lg); font-weight: var(--fw-semibold); margin-bottom: 1rem; color: var(--text);">
+              <i data-lucide="bell" style="width: 18px; height: 18px; vertical-align: middle;"></i>
+              Benachrichtigungen
+            </h3>
+            <div class="grid">
+              <div style="grid-column:1/-1">
+                <div class="toggle-setting">
+                  <div class="toggle-setting-info">
+                    <div class="toggle-setting-label">Benachrichtigungen aktivieren</div>
+                    <div class="toggle-setting-description">Erhalte Erinnerungen für anstehende Termine und Follow-ups</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notificationsEnabled" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <div class="slider-setting">
+                  <label for="appointmentReminderDays">Termin-Erinnerung</label>
+                  <div class="slider-value" id="appointmentReminderValue">2 Tage vorher</div>
+                </div>
+                <input type="range" id="appointmentReminderDays" min="1" max="7" value="2" class="range-slider" />
+                <div class="slider-labels">
+                  <span>1 Tag</span>
+                  <span>7 Tage</span>
+                </div>
+              </div>
+              <div>
+                <div class="slider-setting">
+                  <label for="followUpDays">Follow-up Erinnerung</label>
+                  <div class="slider-value" id="followUpValue">14 Tage nach Bewerbung</div>
+                </div>
+                <input type="range" id="followUpDays" min="7" max="30" value="14" class="range-slider" />
+                <div class="slider-labels">
+                  <span>7 Tage</span>
+                  <span>30 Tage</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 2rem;">
+            <button type="button" class="btn btn-primary" id="btnSaveSettings">Einstellungen speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+
+    
+    <div class="page" id="helpPage">
+      <div class="page-header">
+        <h1>
+          <i data-lucide="help-circle"></i>
+          Hilfe & Anleitungen
+        </h1>
+      </div>
+      <div class="help-mobile-nav">
+        <label class="help-mobile-nav-label" for="helpSectionSelect">Thema auswählen</label>
+        <select id="helpSectionSelect" class="help-nav-select" aria-label="Hilfe-Thema auswählen">
+          <option value="quickstart">Schnellstart</option>
+          <option value="features">Features</option>
+          <option value="statistics">Statistiken</option>
+          <option value="export">Export &amp; Import</option>
+          <option value="settings">Persönliche Angaben</option>
+          <option value="tips">Tipps &amp; Tricks</option>
+          <option value="faq">FAQ</option>
+        </select>
+      </div>
+      <div class="help-container">
+        <div class="help-sidebar">
+          <button class="help-nav-btn active" data-section="quickstart">
+            <i data-lucide="zap"></i>
+            Schnellstart
+          </button>
+          <button class="help-nav-btn" data-section="features">
+            <i data-lucide="layout"></i>
+            Features
+          </button>
+          <button class="help-nav-btn" data-section="statistics">
+            <i data-lucide="bar-chart-3"></i>
+            Statistiken
+          </button>
+          <button class="help-nav-btn" data-section="export">
+            <i data-lucide="download"></i>
+            Export & Import
+          </button>
+          <button class="help-nav-btn" data-section="settings">
+            <i data-lucide="user"></i>
+            Persönliche Angaben
+          </button>
+          <button class="help-nav-btn" data-section="tips">
+            <i data-lucide="lightbulb"></i>
+            Tipps & Tricks
+          </button>
+          <button class="help-nav-btn" data-section="faq">
+            <i data-lucide="message-circle"></i>
+            FAQ
+          </button>
+        </div>
+        
+        <div class="help-content">
+            
+            <div class="help-section active" id="help-quickstart">
+              <h2>🚀 Schnellstart</h2>
+              
+              <div class="help-card help-tip">
+                <h3>🎯 Warum Jobmate?</h3>
+                <p><strong>Schluss mit Word- und Excel-Chaos!</strong> Jobmate ist dein digitaler Bewerbungsassistent, der dir das Leben leichter macht:</p>
+                <ul>
+                  <li>✅ <strong>Keine Tabellen basteln</strong> - übersichtliche Darstellung automatisch</li>
+                  <li>✅ <strong>Keine Dokumente verlieren</strong> - alles zentral an einem Ort</li>
+                  <li>✅ <strong>Keine manuellen Listen</strong> - Statistiken werden automatisch berechnet</li>
+                  <li>✅ <strong>Bessere Übersicht</strong> - Filter, Suche, Timeline auf einen Blick</li>
+                  <li>✅ <strong>Schneller arbeiten</strong> - Formulare statt Word-Dokumente</li>
+                  <li>✅ <strong>PDF-Export</strong> - Professionelle Nachweise für Arbeitsagentur/Jobcenter</li>
+                  <li>✅ <strong>100% lokal</strong> - Deine Daten bleiben auf deinem Gerät</li>
+                </ul>
+                <p>💡 <em>Konzentriere dich auf deine Bewerbungen, nicht auf die Verwaltung!</em></p>
+              </div>
+              
+              <div class="help-card">
+                <h3>1. Erste Bewerbung anlegen</h3>
+                <p>Klicke auf den <strong>"Neu"</strong> Button oben rechts, um deine erste Bewerbung zu erfassen.</p>
+                <p>Pflichtfelder: <strong>Datum</strong> und <strong>Firma</strong></p>
+              </div>
+              
+              <div class="help-card">
+                <h3>2. Details hinzufügen</h3>
+                <p>Nutze die <strong>Tabs</strong> im Formular:</p>
+                <ul>
+                  <li><strong>Notizen:</strong> Stellenbeschreibung, To-dos</li>
+                  <li><strong>Dokumente:</strong> Anschreiben, Lebenslauf hochladen</li>
+                  <li><strong>Termine:</strong> Vorstellungsgespräche eintragen</li>
+                  <li><strong>Links:</strong> Stellenanzeigen speichern</li>
+                  <li><strong>Timeline:</strong> Bewerbungsprozess dokumentieren</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3>3. Status aktualisieren</h3>
+                <p>Ändere den Status deiner Bewerbung:</p>
+                <ul>
+                  <li><strong>Offen:</strong> Bewerbung versendet, warte auf Rückmeldung</li>
+                  <li><strong>Vorstellungsgespräch:</strong> Einladung erhalten</li>
+                  <li><strong>Absage:</strong> Leider nicht erfolgreich</li>
+                </ul>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-features">
+              <h2>✨ Features im Detail</h2>
+              
+              <div class="help-card">
+                <h3><i data-lucide="file-text"></i> Notizen</h3>
+                <p>Speichere wichtige Informationen zu jeder Bewerbung:</p>
+                <ul>
+                  <li>Stellenbeschreibung kopieren</li>
+                  <li>Gehaltsspanne notieren</li>
+                  <li>Anforderungen festhalten</li>
+                  <li>Vorbereitung für Gespräche</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="paperclip"></i> Dokumente</h3>
+                <p>Lade relevante Dateien hoch (max. 5MB pro Datei):</p>
+                <ul>
+                  <li>Anschreiben & Lebenslauf</li>
+                  <li>Zeugnisse & Zertifikate</li>
+                  <li>Stellenanzeige als PDF</li>
+                  <li>Später einfach wiederfinden</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="calendar-check"></i> Termine</h3>
+                <p>Behalte alle Termine im Blick:</p>
+                <ul>
+                  <li>Vorstellungsgespräche</li>
+                  <li>Assessment Center</li>
+                  <li>Telefoninterviews</li>
+                  <li>Automatische Sortierung nach Datum</li>
+                </ul>
+                <p><strong>Tipp:</strong> In den Statistiken siehst du die nächsten 5 Termine auf einen Blick!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="link"></i> Links</h3>
+                <p>Speichere wichtige URLs:</p>
+                <ul>
+                  <li>Original-Stellenanzeige</li>
+                  <li>Unternehmenswebsite</li>
+                  <li>Bewerbungsportal</li>
+                  <li>Direkt aus der App öffnen</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="clock"></i> Timeline</h3>
+                <p>Dokumentiere den Bewerbungsverlauf:</p>
+                <ul>
+                  <li>Wann wurde die Bewerbung verschickt?</li>
+                  <li>Wann kam die Bestätigung?</li>
+                  <li>Wann war das Gespräch?</li>
+                  <li>Chronologische Übersicht</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="star"></i> Favoriten</h3>
+                <p>Markiere wichtige Bewerbungen als Favoriten:</p>
+                <ul>
+                  <li>Klicke auf das Stern-Symbol um Favoriten zu setzen</li>
+                  <li>Favoriten werden immer zuerst angezeigt</li>
+                  <li>Funktioniert in Tabellen- und Kanban-Ansicht</li>
+                  <li>Filter "Nur Favoriten" für schnellen Zugriff</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="bell"></i> Erinnerungen</h3>
+                <p>Automatische Benachrichtigungen für wichtige Termine:</p>
+                <ul>
+                  <li><strong>Termin-Erinnerungen:</strong> 1-7 Tage vor Vorstellungsgesprächen</li>
+                  <li><strong>Follow-up Erinnerungen:</strong> Bei offenen Bewerbungen nach 7-30 Tagen</li>
+                  <li>Einstellbar in den persönlichen Angaben</li>
+                  <li>Erscheinen als Hinweisfenster in der App</li>
+                  <li>Bleiben sichtbar bis du sie schließt</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="filter"></i> Erweiterte Filter</h3>
+                <p>Filtere deine Bewerbungen nach verschiedenen Kriterien:</p>
+                <ul>
+                  <li><strong>Benötigt Follow-up:</strong> Offene Bewerbungen älter als X Tage</li>
+                  <li><strong>Nur Favoriten:</strong> Zeige nur markierte Bewerbungen</li>
+                  <li>Kombinierbar mit Status-Filter und Suche</li>
+                  <li>Dynamische Beschreibung basierend auf Einstellungen</li>
+                </ul>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-statistics">
+              <h2>📊 Statistiken verstehen</h2>
+              
+              <div class="help-card">
+                <h3>Dashboard-Statistiken</h3>
+                <p>Die 4 Karten auf der Startseite zeigen:</p>
+                <ul>
+                  <li><strong>Gesamt:</strong> Alle erfassten Bewerbungen</li>
+                  <li><strong>Offen:</strong> Bewerbungen ohne Rückmeldung</li>
+                  <li><strong>Vorstellung:</strong> Einladungen zu Gesprächen</li>
+                  <li><strong>Absagen:</strong> Leider nicht erfolgreich</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3>Erweiterte Statistiken</h3>
+                <p>Klicke auf den Statistik-Button für detaillierte Auswertungen:</p>
+                
+                <h4><i data-lucide="trending-up"></i> Aktivität</h4>
+                <p>Wähle einen Zeitraum (Insgesamt, Monat, 3/6 Monate, Jahr). Alle anderen Statistiken passen sich automatisch an!</p>
+                
+                <h4><i data-lucide="target"></i> Erfolgsquote</h4>
+                <p>Wie viele deiner Bewerbungen führen zu Vorstellungsgesprächen? Je höher, desto besser!</p>
+                
+                <h4><i data-lucide="x-circle"></i> Absagequote</h4>
+                <p>Prozentsatz der Absagen. Normal sind 70-90% - lass dich nicht entmutigen!</p>
+                
+                <h4><i data-lucide="calendar-check"></i> Anstehende Termine</h4>
+                <p>Die nächsten 5 Termine. Klicke auf einen Termin, um direkt zum Eintrag zu gelangen!</p>
+                
+                <h4><i data-lucide="alert-circle"></i> Follow-up benötigt</h4>
+                <p>Offene Bewerbungen älter als 14 Tage. Klicke die Karte an, um sie zu filtern und nachzuhaken!</p>
+                
+                <h4><i data-lucide="pie-chart"></i> Bewerbungskanäle</h4>
+                <p>Über welche Wege bewirbst du dich? Optimiere deine Strategie!</p>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-export">
+              <h2>💾 Export & Import</h2>
+              
+              <div class="help-card">
+                <h3><i data-lucide="file-text"></i> PDF Export</h3>
+                <p><strong>Export</strong> → <strong>Als PDF exportieren</strong></p>
+                <p>Erstellt eine druckbare Übersicht aller Bewerbungen:</p>
+                <ul>
+                  <li>Mit deinen persönlichen Daten (aus Einstellungen)</li>
+                  <li>Tabelle mit allen Bewerbungen</li>
+                  <li>Perfekt für Beratungsgespräche</li>
+                  <li>Zum Drucken oder als Nachweis</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="download"></i> Daten sichern (JSON)</h3>
+                <p><strong>Export</strong> → <strong>Daten sichern (JSON)</strong></p>
+                <p>Erstellt eine Sicherungskopie aller deiner Daten:</p>
+                <ul>
+                  <li>Alle Bewerbungen mit Dokumenten</li>
+                  <li>Termine, Links, Timeline</li>
+                  <li>Deine Einstellungen</li>
+                  <li>Speichere die Datei sicher auf deiner Festplatte!</li>
+                </ul>
+                <p><strong>Wichtig:</strong> Regelmäßige Backups schützen vor Datenverlust!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="upload"></i> Daten importieren</h3>
+                <p>Klicke auf <strong>Import</strong> und wähle eine JSON-Backup-Datei:</p>
+                <ul>
+                  <li>Stelle gelöschte Daten wieder her</li>
+                  <li>Wechsle zwischen Geräten</li>
+                  <li>Übertrage Daten auf neuen Computer</li>
+                  <li><strong>Achtung:</strong> Ersetzt aktuelle Daten!</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-warning">
+                <h3>⚠️ Datensicherheit</h3>
+                <p>Alle Daten werden <strong>nur lokal</strong> in deinem Browser gespeichert:</p>
+                <ul>
+                  <li>✅ Keine Cloud, keine Server</li>
+                  <li>✅ Volle Kontrolle über deine Daten</li>
+                  <li>❌ Aber: Browser-Cache löschen = Daten weg!</li>
+                  <li>💡 Daher: Regelmäßig Backup erstellen!</li>
+                </ul>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-settings">
+              <h2>👤 Persönliche Angaben</h2>
+              
+              <div class="help-card">
+                <h3>📝 Persönliche Daten für PDF-Export</h3>
+                <p>Über das <strong>Person-Symbol</strong> oben rechts kannst du wichtige Angaben hinterlegen, die automatisch in exportierte PDFs eingefügt werden.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>👤 Dein Name</h3>
+                <p><strong>Wozu?</strong> Dein vollständiger Name erscheint als Ersteller auf dem PDF-Export und identifiziert dich eindeutig.</p>
+                <ul>
+                  <li>Wird im PDF-Header angezeigt</li>
+                  <li>Wichtig für offizielle Dokumentation</li>
+                  <li>Beispiel: "Max Mustermann"</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3>🏢 BG-Nummer (Bedarfsgemeinschaft)</h3>
+                <p><strong>Wozu?</strong> Deine Bedarfsgemeinschafts-Nummer vom <strong>Jobcenter</strong> - wichtig wenn du Bürgergeld beziehst.</p>
+                <ul>
+                  <li>Eindeutige Identifikation beim Jobcenter</li>
+                  <li>Wichtig für Nachweise und Fördermaßnahmen</li>
+                  <li>Beispiel: "BG-2024-12345"</li>
+                  <li><em>Optional:</em> Nur ausfüllen wenn zutreffend</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3>🎫 KD-Nummer (Kundennummer)</h3>
+                <p><strong>Wozu?</strong> Deine Kundennummer bei der <strong>Agentur für Arbeit</strong> - wichtig für alle offiziellen Dokumente.</p>
+                <ul>
+                  <li>Eindeutige Identifikation bei der Agentur für Arbeit</li>
+                  <li>Erforderlich für Aktivierungs- und Vermittlungsgutscheine (AVGS)</li>
+                  <li>Wird auf Nachweisen verlangt</li>
+                  <li>Beispiel: "12345-6789-0"</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>💡 Warum diese Angaben?</h3>
+                <p>Die BG- und KD-Nummern dienen zur <strong>schnellen Identifikation</strong> bei Behörden. Der PDF-Export mit diesen Daten:</p>
+                <ul>
+                  <li>✅ Mitarbeiter können dich <strong>schneller im System finden</strong></li>
+                  <li>✅ Eindeutige <strong>Zuordnung</strong> zu deinem Fall</li>
+                  <li>✅ Beschleunigt die Bearbeitung und Nachweispflichten</li>
+                  <li>✅ Ist ein <strong>offizieller Nachweis</strong> deiner Bewerbungsaktivitäten</li>
+                </ul>
+                <p><strong>Nicht bei Jobcenter/Arbeitsagentur gemeldet?</strong> Dann kannst du die Felder leer lassen - der Export funktioniert trotzdem!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>� Benachrichtigungen</h3>
+                <p>Konfiguriere deine Erinnerungen für Termine und Follow-ups:</p>
+                <ul>
+                  <li><strong>Benachrichtigungen aktivieren/deaktivieren:</strong> Schalter ein/aus</li>
+                  <li><strong>Termin-Erinnerung:</strong> 1-7 Tage vorher (Slider)</li>
+                  <li><strong>Follow-up nach:</strong> 7-30 Tagen (Slider)</li>
+                  <li>Benachrichtigungen erscheinen als Hinweisfenster in der App</li>
+                  <li>Werden beim Laden der App und nach Änderungen geprüft</li>
+                </ul>
+                <p><strong>Tipp:</strong> Stelle die Tage so ein, dass du genug Zeit für Vorbereitung oder Nachfassen hast!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>�🔒 Datenschutz</h3>
+                <p>Diese Einstellungen werden <strong>nur lokal in deinem Browser</strong> gespeichert. Sie verlassen niemals dein Gerät!</p>
+                <ul>
+                  <li>Keine Übertragung ins Internet</li>
+                  <li>Keine Cloud-Speicherung</li>
+                  <li>Du behältst volle Kontrolle</li>
+                  <li>Bei JSON-Export werden sie mitgesichert</li>
+                </ul>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-tips">
+              <h2>💡 Tipps & Tricks</h2>
+              
+              <div class="help-card help-tip">
+                <h3>🎯 Effizient bewerben</h3>
+                <ul>
+                  <li>Nutze die <strong>Notizen</strong> für wichtige Details aus der Stellenanzeige</li>
+                  <li>Speichere die Original-Stellenanzeige als <strong>Link</strong> oder <strong>PDF</strong></li>
+                  <li>Trage <strong>Termine</strong> sofort ein, wenn du die Einladung erhältst</li>
+                  <li>Aktualisiere die <strong>Timeline</strong> bei jeder Rückmeldung</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>📈 Statistiken nutzen</h3>
+                <ul>
+                  <li>Prüfe regelmäßig die <strong>Follow-up</strong> Karte - nach 14 Tagen nachhaken!</li>
+                  <li>Analysiere deine <strong>Erfolgsquote</strong> pro Bewerbungskanal</li>
+                  <li>Nutze <strong>Zeitraum-Filter</strong> um Trends zu erkennen</li>
+                  <li>Eine Erfolgsquote von 5-10% ist normal!</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>🔍 Suche & Filter</h3>
+                <ul>
+                  <li>Nutze die <strong>Suchfunktion</strong> um schnell Firmen zu finden</li>
+                  <li>Filtere nach <strong>Status</strong> für bessere Übersicht</li>
+                  <li>Kombiniere Suche und Filter für präzise Ergebnisse</li>
+                  <li>Sortierung erfolgt automatisch nach Datum (neueste zuerst)</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>🌙 Dark Mode</h3>
+                <ul>
+                  <li>Klicke auf das <strong>Mond/Sonne Symbol</strong> zum Umschalten</li>
+                  <li>Schont die Augen bei längerer Nutzung</li>
+                  <li>Perfekt für abendliche Bewerbungssessions</li>
+                  <li>Einstellung wird gespeichert</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>💾 Backup-Strategie</h3>
+                <ul>
+                  <li>Erstelle <strong>wöchentlich</strong> ein JSON-Backup</li>
+                  <li>Speichere es an mehreren Orten (PC, USB, Cloud)</li>
+                  <li>Benenne Dateien mit Datum: <code>jobmate-2025-12-16.json</code></li>
+                  <li>Vor Browser-Updates oder Wartungen: Backup!</li>
+                </ul>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-faq">
+              <h2>❓ Häufig gestellte Fragen</h2>
+              
+              <div class="help-card">
+                <h3>Wo werden meine Daten gespeichert?</h3>
+                <p>Alle Daten werden <strong>lokal in deinem Browser</strong> gespeichert (LocalStorage). Keine Cloud, keine Server, keine Übertragung ins Internet. Du hast volle Kontrolle!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Was passiert wenn ich den Browser-Cache lösche?</h3>
+                <p>⚠️ Dann sind alle Daten weg! Deshalb: Regelmäßig <strong>JSON-Backups</strong> erstellen.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Kann ich Jobmate auf mehreren Geräten nutzen?</h3>
+                <p>Die Daten sind pro Browser/Gerät gespeichert. Um zwischen Geräten zu wechseln: <strong>Exportiere</strong> die Daten auf Gerät A, <strong>importiere</strong> sie auf Gerät B.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Wie groß dürfen hochgeladene Dokumente sein?</h3>
+                <p>Maximal <strong>5 MB pro Datei</strong>. Unterstützt: PDF, DOC, DOCX, JPG, PNG</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Funktioniert Jobmate offline?</h3>
+                <p>Ja! Einmal geladen, funktioniert die App auch ohne Internetverbindung. Alle Daten sind lokal verfügbar.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Kann ich gelöschte Einträge wiederherstellen?</h3>
+                <p>Nur wenn du vorher ein <strong>JSON-Backup</strong> erstellt hast. Gelöschte Daten sind sonst unwiederbringlich weg!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Warum zeigt die Statistik andere Zahlen als die Dashboard-Karten?</h3>
+                <p>In den erweiterten Statistiken kannst du einen <strong>Zeitraum wählen</strong>. Die Dashboard-Karten zeigen immer <strong>alle</strong> Bewerbungen.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Ist Jobmate DSGVO-konform?</h3>
+                <p>Ja! Da alle Daten <strong>nur lokal</strong> gespeichert werden und keine Übertragung stattfindet, gibt es keine Datenschutzbedenken. Deine Daten verlassen nie deinen Computer.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Kann ich Jobmate erweitern oder anpassen?</h3>
+                <p>Jobmate ist Open Source! Du kannst den Code einsehen und nach deinen Wünschen anpassen.</p>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>📧 Support & Feedback</h3>
+                <p>Du hast Fragen, Probleme oder Verbesserungsvorschläge?</p>
+                <p>Schreib mir gerne eine E-Mail an: <strong><a href="mailto:michael@polarco.de">michael@polarco.de</a></strong></p>
+                <p>Ich helfe dir gerne weiter und freue mich über dein Feedback! 💙</p>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+    
+
+  </div>
+
+  
+  <div class="modal" id="modal">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+      <div class="sheethead">
+        <div class="sheettitle" id="formTitle">Eintrag</div>
+        <button class="btn" id="btnClose">Schließen</button>
+      </div>
+      <div class="sheetbody">
+        <div class="modal-grid">
+          <div class="modal-form-column">
+            <form id="form">
+              <div class="grid">
+                <div>
+                  <label for="date">Datum</label>
+                  <input type="date" id="date" required />
+                </div>
+                <div>
+                  <label for="company">Firma</label>
+                  <input type="text" id="company" placeholder="z. B. Muster GmbH" required />
+                </div>
+                <div>
+                  <label for="position">Position</label>
+                  <input type="text" id="position" placeholder="z. B. Webentwickler" />
+                </div>
+                <div>
+                  <label for="channel">Bewerbungsart</label>
+                  <select id="channel">
+                    <option>E-Mail</option>
+                    <option>Webseite</option>
+                    <option>Jobportal</option>
+                    <option>Telefonisch</option>
+                    <option>Persönlich</option>
+                    <option>Postalisch</option>
+                    <option>Jobmesse</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="status">Status</label>
+                  <select id="status">
+                    <option>Offen</option>
+                    <option>Vorstellungsgespräch</option>
+                    <option>Absage</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="contact">Kontakt</label>
+                  <input type="text" id="contact" placeholder="Ansprechperson / Telefon / E-Mail" />
+                </div>
+                <div style="grid-column:1/-1">
+                  <label for="address">Anschrift</label>
+                  <input type="text" id="address" placeholder="Straße, PLZ, Ort" />
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-tabs-column">
+            
+            <div class="tabs-container">
+          <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="notes">
+              <i data-lucide="file-text"></i>
+              Notizen
+            </button>
+            <button class="tab-btn" data-tab="documents">
+              <i data-lucide="paperclip"></i>
+              Dokumente
+            </button>
+            <button class="tab-btn" data-tab="appointments">
+              <i data-lucide="calendar-check"></i>
+              Termine
+            </button>
+            <button class="tab-btn" data-tab="links">
+              <i data-lucide="link"></i>
+              Links
+            </button>
+            <button class="tab-btn" data-tab="timeline">
+              <i data-lucide="clock"></i>
+              Timeline
+            </button>
+          </div>
+
+          <div class="tabs-content">
+            
+            <div class="tab-pane active" id="tab-notes">
+              <label for="notes">Notizen</label>
+              <textarea id="notes" placeholder="Stellenbeschreibung, To-dos, Links …" rows="6"></textarea>
+            </div>
+
+            
+            <div class="tab-pane" id="tab-documents">
+              <div class="documents-section">
+                <input type="file" id="docUpload" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple style="display:none">
+                <button type="button" class="btn btn-outline" id="btnAddDoc">
+                  <i data-lucide="upload"></i>
+                  Dokument hinzufügen
+                </button>
+                <div id="documentsList" class="documents-list"></div>
+              </div>
+            </div>
+
+            
+            <div class="tab-pane" id="tab-appointments">
+              <div class="appointments-section">
+                <div class="appointment-form">
+                  <select id="appointmentType">
+                    <option>Vorstellungsgespräch</option>
+                    <option>Probearbeiten</option>
+                    <option>Assessment Center</option>
+                    <option>2. Gespräch</option>
+                    <option>Vertragsunterzeichnung</option>
+                    <option>Telefoninterview</option>
+                    <option>Kennenlerngespräch</option>
+                  </select>
+                  <input type="datetime-local" id="appointmentDate" placeholder="TT.MM.JJJJ --:--">
+                  <button type="button" class="btn btn-sm btn-primary" id="btnAddAppointment">
+                    <i data-lucide="plus"></i>
+
+                  </button>
+                </div>
+                <div id="appointmentsList" class="appointments-list"></div>
+              </div>
+            </div>
+
+            
+            <div class="tab-pane" id="tab-links">
+              <div class="links-section">
+                <div class="link-add">
+                  <input type="url" id="linkUrl" placeholder="https://example.com/stellenanzeige">
+                  <button type="button" class="btn btn-sm btn-primary" id="btnAddLink">
+                    <i data-lucide="plus"></i>
+                  </button>
+                </div>
+                <div id="linksList" class="links-list"></div>
+              </div>
+            </div>
+
+            
+            <div class="tab-pane" id="tab-timeline">
+              <div class="timeline-section">
+                <div class="timeline-add">
+                  <input type="date" id="timelineDate" style="width: auto;">
+                  <select id="timelineType" style="width: auto;">
+                    <option>Bewerbung verschickt</option>
+                    <option>Bestätigung erhalten</option>
+                    <option>Vorstellungsgespräch</option>
+                    <option>Zusage</option>
+                    <option>Absage</option>
+                    <option>Rückmeldung</option>
+                  </select>
+                  <button type="button" class="btn btn-sm btn-primary" id="btnAddTimeline">
+                    <i data-lucide="plus"></i>
+                  </button>
+                </div>
+                <div id="timelineList" class="timeline-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </div>
+      </div>
+      <div class="sheetfoot">
+        <button class="btn" id="btnDelete" style="display:none">Löschen</button>
+        <button class="btn btn-primary" id="btnSave">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="modal" id="statsModal" aria-hidden="true" style="display: none !important;">
+    <div class="sheet sheet-large" role="dialog" aria-modal="true" aria-labelledby="statsTitle">
+      <div class="sheethead">
+        <div class="sheettitle" id="statsTitle">
+          <i data-lucide="bar-chart-3"></i>
+          Erweiterte Statistiken
+        </div>
+        <button class="btn" id="btnStatsClose">Schließen</button>
+      </div>
+      <div class="sheetbody">
+        <div class="stats-grid">
+          
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <i data-lucide="trending-up"></i>
+              <h3>Aktivität</h3>
+            </div>
+            <div class="stat-card-body">
+              <select id="activityPeriod" class="activity-period-select">
+                <option value="all" selected>Insgesamt</option>
+                <option value="month">Dieser Monat</option>
+                <option value="3months">Letzte 3 Monate</option>
+                <option value="6months">Letzte 6 Monate</option>
+                <option value="year">Dieses Jahr</option>
+              </select>
+              <div class="stat-big" id="statActivityCount">0</div>
+              <div class="stat-label" id="statActivityLabel">Bewerbungen diesen Monat</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <i data-lucide="target"></i>
+              <h3>Erfolgsquote</h3>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-big" id="statSuccessRate">0%</div>
+              <div class="stat-label">Vorstellungsgespräche pro Bewerbung</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <i data-lucide="x-circle"></i>
+              <h3>Absagequote</h3>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-big" id="statRejectionRate">0%</div>
+              <div class="stat-label" id="statRejectionCount">0 Absagen</div>
+            </div>
+          </div>
+
+          
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <i data-lucide="calendar-check"></i>
+              <h3>Anstehende Termine</h3>
+            </div>
+            <div class="stat-card-body" id="statUpcomingAppointments">
+              <div class="stat-label">Keine Termine</div>
+            </div>
+          </div>
+
+          <div class="stat-card stat-card-clickable" id="followUpCard">
+            <div class="stat-card-header">
+              <i data-lucide="alert-circle"></i>
+              <h3>Follow-up benötigt</h3>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-big" id="statOldApplications">0</div>
+              <div class="stat-label">Offene Bewerbungen älter als 14 Tage</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <i data-lucide="pie-chart"></i>
+              <h3>Bewerbungskanäle</h3>
+            </div>
+            <div class="stat-card-body" id="statChannels">
+              <div class="stat-label">Keine Daten</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="modal" id="settingsModal" aria-hidden="true" style="display: none !important;">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="sheethead">
+        <div class="sheettitle" id="settingsTitle">Persönliche Angaben & Einstellungen</div>
+        <button class="btn" id="btnSettingsClose">Schließen</button>
+      </div>
+      <div class="sheetbody">
+        <form id="settingsForm">
+          <div class="grid">
+            <div>
+              <label for="firstName">Vorname</label>
+              <input type="text" id="firstName" placeholder="Max" />
+            </div>
+            <div>
+              <label for="lastName">Nachname</label>
+              <input type="text" id="lastName" placeholder="Mustermann" />
+            </div>
+            <div style="grid-column:1/-1">
+              <label for="customerNumber">BG-Nummer / Kundennummer</label>
+              <input type="text" id="customerNumber" placeholder="z. B. BG-123456" />
+            </div>
+          </div>
+          
+          <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-light);">
+            <h3 style="font-size: var(--fs-lg); font-weight: var(--fw-semibold); margin-bottom: 1rem; color: var(--text);">
+              <i data-lucide="bell" style="width: 18px; height: 18px; vertical-align: middle;"></i>
+              Benachrichtigungen
+            </h3>
+            <div class="grid">
+              <div style="grid-column:1/-1">
+                <div class="toggle-setting">
+                  <div class="toggle-setting-info">
+                    <div class="toggle-setting-label">Benachrichtigungen aktivieren</div>
+                    <div class="toggle-setting-description">Erhalte Erinnerungen für anstehende Termine und Follow-ups</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="notificationsEnabled" checked />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <div class="slider-setting">
+                  <label for="appointmentReminderDays">Termin-Erinnerung</label>
+                  <div class="slider-value" id="appointmentReminderValue">2 Tage vorher</div>
+                </div>
+                <input type="range" id="appointmentReminderDays" min="1" max="7" value="2" class="range-slider" />
+                <div class="slider-labels">
+                  <span>1 Tag</span>
+                  <span>7 Tage</span>
+                </div>
+              </div>
+              <div>
+                <div class="slider-setting">
+                  <label for="followUpDays">Follow-up Erinnerung</label>
+                  <div class="slider-value" id="followUpValue">14 Tage nach Bewerbung</div>
+                </div>
+                <input type="range" id="followUpDays" min="7" max="30" value="14" class="range-slider" />
+                <div class="slider-labels">
+                  <span>7 Tage</span>
+                  <span>30 Tage</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="sheetfoot">
+        <button class="btn btn-primary" id="btnSaveSettings">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="modal" id="helpModal" aria-hidden="true" style="display: none !important;">
+    <div class="sheet sheet-large" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="sheethead">
+        <div class="sheettitle" id="helpTitle">
+          <i data-lucide="help-circle"></i>
+          Hilfe & Anleitungen
+        </div>
+        <button class="btn" id="btnHelpClose">Schließen</button>
+      </div>
+      <div class="sheetbody">
+        <div class="help-container">
+          <div class="help-sidebar">
+            <button class="help-nav-btn active" data-section="quickstart">
+              <i data-lucide="zap"></i>
+              Schnellstart
+            </button>
+            <button class="help-nav-btn" data-section="features">
+              <i data-lucide="layout"></i>
+              Features
+            </button>
+            <button class="help-nav-btn" data-section="statistics">
+              <i data-lucide="bar-chart-3"></i>
+              Statistiken
+            </button>
+            <button class="help-nav-btn" data-section="export">
+              <i data-lucide="download"></i>
+              Export & Import
+            </button>
+            <button class="help-nav-btn" data-section="settings">
+              <i data-lucide="user"></i>
+              Persönliche Angaben
+            </button>
+            <button class="help-nav-btn" data-section="tips">
+              <i data-lucide="lightbulb"></i>
+              Tipps & Tricks
+            </button>
+            <button class="help-nav-btn" data-section="faq">
+              <i data-lucide="message-circle"></i>
+              FAQ
+            </button>
+          </div>
+          
+          <div class="help-content">
+            
+            <div class="help-section active" id="help-quickstart">
+              <h2>🚀 Schnellstart</h2>
+              
+              <div class="help-card help-tip">
+                <h3>🎯 Warum Jobmate?</h3>
+                <p><strong>Schluss mit Word- und Excel-Chaos!</strong> Jobmate ist dein digitaler Bewerbungsassistent, der dir das Leben leichter macht:</p>
+                <ul>
+                  <li>✅ <strong>Keine Tabellen basteln</strong> - übersichtliche Darstellung automatisch</li>
+                  <li>✅ <strong>Keine Dokumente verlieren</strong> - alles zentral an einem Ort</li>
+                  <li>✅ <strong>Keine manuellen Listen</strong> - Statistiken werden automatisch berechnet</li>
+                  <li>✅ <strong>Bessere Übersicht</strong> - Filter, Suche, Timeline auf einen Blick</li>
+                  <li>✅ <strong>Schneller arbeiten</strong> - Formulare statt Word-Dokumente</li>
+                  <li>✅ <strong>PDF-Export</strong> - Professionelle Nachweise für Arbeitsagentur/Jobcenter</li>
+                  <li>✅ <strong>100% lokal</strong> - Deine Daten bleiben auf deinem Gerät</li>
+                </ul>
+                <p>💡 <em>Konzentriere dich auf deine Bewerbungen, nicht auf die Verwaltung!</em></p>
+              </div>
+              
+              <div class="help-card">
+                <h3>1. Erste Bewerbung anlegen</h3>
+                <p>Klicke auf den <strong>"Neu"</strong> Button oben rechts, um deine erste Bewerbung zu erfassen.</p>
+                <p>Pflichtfelder: <strong>Datum</strong> und <strong>Firma</strong></p>
+              </div>
+              
+              <div class="help-card">
+                <h3>2. Details hinzufügen</h3>
+                <p>Nutze die <strong>Tabs</strong> im Formular:</p>
+                <ul>
+                  <li><strong>Notizen:</strong> Stellenbeschreibung, To-dos</li>
+                  <li><strong>Dokumente:</strong> Anschreiben, Lebenslauf hochladen</li>
+                  <li><strong>Termine:</strong> Vorstellungsgespräche eintragen</li>
+                  <li><strong>Links:</strong> Stellenanzeigen speichern</li>
+                  <li><strong>Timeline:</strong> Bewerbungsprozess dokumentieren</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3>3. Status aktualisieren</h3>
+                <p>Ändere den Status deiner Bewerbung:</p>
+                <ul>
+                  <li><strong>Offen:</strong> Bewerbung versendet, warte auf Rückmeldung</li>
+                  <li><strong>Vorstellungsgespräch:</strong> Einladung erhalten</li>
+                  <li><strong>Absage:</strong> Leider nicht erfolgreich</li>
+                </ul>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-features">
+              <h2>✨ Features im Detail</h2>
+              
+              <div class="help-card">
+                <h3><i data-lucide="file-text"></i> Notizen</h3>
+                <p>Speichere wichtige Informationen zu jeder Bewerbung:</p>
+                <ul>
+                  <li>Stellenbeschreibung kopieren</li>
+                  <li>Gehaltsspanne notieren</li>
+                  <li>Anforderungen festhalten</li>
+                  <li>Vorbereitung für Gespräche</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="paperclip"></i> Dokumente</h3>
+                <p>Lade relevante Dateien hoch (max. 5MB pro Datei):</p>
+                <ul>
+                  <li>Anschreiben & Lebenslauf</li>
+                  <li>Zeugnisse & Zertifikate</li>
+                  <li>Stellenanzeige als PDF</li>
+                  <li>Später einfach wiederfinden</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="calendar-check"></i> Termine</h3>
+                <p>Behalte alle Termine im Blick:</p>
+                <ul>
+                  <li>Vorstellungsgespräche</li>
+                  <li>Assessment Center</li>
+                  <li>Telefoninterviews</li>
+                  <li>Automatische Sortierung nach Datum</li>
+                </ul>
+                <p><strong>Tipp:</strong> In den Statistiken siehst du die nächsten 5 Termine auf einen Blick!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="link"></i> Links</h3>
+                <p>Speichere wichtige URLs:</p>
+                <ul>
+                  <li>Original-Stellenanzeige</li>
+                  <li>Unternehmenswebsite</li>
+                  <li>Bewerbungsportal</li>
+                  <li>Direkt aus der App öffnen</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="clock"></i> Timeline</h3>
+                <p>Dokumentiere den Bewerbungsverlauf:</p>
+                <ul>
+                  <li>Wann wurde die Bewerbung verschickt?</li>
+                  <li>Wann kam die Bestätigung?</li>
+                  <li>Wann war das Gespräch?</li>
+                  <li>Chronologische Übersicht</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="star"></i> Favoriten</h3>
+                <p>Markiere wichtige Bewerbungen als Favoriten:</p>
+                <ul>
+                  <li>Klicke auf das Stern-Symbol um Favoriten zu setzen</li>
+                  <li>Favoriten werden immer zuerst angezeigt</li>
+                  <li>Funktioniert in Tabellen- und Kanban-Ansicht</li>
+                  <li>Filter "Nur Favoriten" für schnellen Zugriff</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="bell"></i> Erinnerungen</h3>
+                <p>Automatische Benachrichtigungen für wichtige Termine:</p>
+                <ul>
+                  <li><strong>Termin-Erinnerungen:</strong> 1-7 Tage vor Vorstellungsgesprächen</li>
+                  <li><strong>Follow-up Erinnerungen:</strong> Bei offenen Bewerbungen nach 7-30 Tagen</li>
+                  <li>Einstellbar in den persönlichen Angaben</li>
+                  <li>Erscheinen als Hinweisfenster in der App</li>
+                  <li>Bleiben sichtbar bis du sie schließt</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="filter"></i> Erweiterte Filter</h3>
+                <p>Filtere deine Bewerbungen nach verschiedenen Kriterien:</p>
+                <ul>
+                  <li><strong>Benötigt Follow-up:</strong> Offene Bewerbungen älter als X Tage</li>
+                  <li><strong>Nur Favoriten:</strong> Zeige nur markierte Bewerbungen</li>
+                  <li>Kombinierbar mit Status-Filter und Suche</li>
+                  <li>Dynamische Beschreibung basierend auf Einstellungen</li>
+                </ul>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-statistics">
+              <h2>📊 Statistiken verstehen</h2>
+              
+              <div class="help-card">
+                <h3>Dashboard-Statistiken</h3>
+                <p>Die 4 Karten auf der Startseite zeigen:</p>
+                <ul>
+                  <li><strong>Gesamt:</strong> Alle erfassten Bewerbungen</li>
+                  <li><strong>Offen:</strong> Bewerbungen ohne Rückmeldung</li>
+                  <li><strong>Vorstellung:</strong> Einladungen zu Gesprächen</li>
+                  <li><strong>Absagen:</strong> Leider nicht erfolgreich</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3>Erweiterte Statistiken</h3>
+                <p>Klicke auf den Statistik-Button für detaillierte Auswertungen:</p>
+                
+                <h4><i data-lucide="trending-up"></i> Aktivität</h4>
+                <p>Wähle einen Zeitraum (Insgesamt, Monat, 3/6 Monate, Jahr). Alle anderen Statistiken passen sich automatisch an!</p>
+                
+                <h4><i data-lucide="target"></i> Erfolgsquote</h4>
+                <p>Wie viele deiner Bewerbungen führen zu Vorstellungsgesprächen? Je höher, desto besser!</p>
+                
+                <h4><i data-lucide="x-circle"></i> Absagequote</h4>
+                <p>Prozentsatz der Absagen. Normal sind 70-90% - lass dich nicht entmutigen!</p>
+                
+                <h4><i data-lucide="calendar-check"></i> Anstehende Termine</h4>
+                <p>Die nächsten 5 Termine. Klicke auf einen Termin, um direkt zum Eintrag zu gelangen!</p>
+                
+                <h4><i data-lucide="alert-circle"></i> Follow-up benötigt</h4>
+                <p>Offene Bewerbungen älter als 14 Tage. Klicke die Karte an, um sie zu filtern und nachzuhaken!</p>
+                
+                <h4><i data-lucide="pie-chart"></i> Bewerbungskanäle</h4>
+                <p>Über welche Wege bewirbst du dich? Optimiere deine Strategie!</p>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-export">
+              <h2>💾 Export & Import</h2>
+              
+              <div class="help-card">
+                <h3><i data-lucide="file-text"></i> PDF Export</h3>
+                <p><strong>Export</strong> → <strong>Als PDF exportieren</strong></p>
+                <p>Erstellt eine druckbare Übersicht aller Bewerbungen:</p>
+                <ul>
+                  <li>Mit deinen persönlichen Daten (aus Einstellungen)</li>
+                  <li>Tabelle mit allen Bewerbungen</li>
+                  <li>Perfekt für Beratungsgespräche</li>
+                  <li>Zum Drucken oder als Nachweis</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="download"></i> Daten sichern (JSON)</h3>
+                <p><strong>Export</strong> → <strong>Daten sichern (JSON)</strong></p>
+                <p>Erstellt eine Sicherungskopie aller deiner Daten:</p>
+                <ul>
+                  <li>Alle Bewerbungen mit Dokumenten</li>
+                  <li>Termine, Links, Timeline</li>
+                  <li>Deine Einstellungen</li>
+                  <li>Speichere die Datei sicher auf deiner Festplatte!</li>
+                </ul>
+                <p><strong>Wichtig:</strong> Regelmäßige Backups schützen vor Datenverlust!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3><i data-lucide="upload"></i> Daten importieren</h3>
+                <p>Klicke auf <strong>Import</strong> und wähle eine JSON-Backup-Datei:</p>
+                <ul>
+                  <li>Stelle gelöschte Daten wieder her</li>
+                  <li>Wechsle zwischen Geräten</li>
+                  <li>Übertrage Daten auf neuen Computer</li>
+                  <li><strong>Achtung:</strong> Ersetzt aktuelle Daten!</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-warning">
+                <h3>⚠️ Datensicherheit</h3>
+                <p>Alle Daten werden <strong>nur lokal</strong> in deinem Browser gespeichert:</p>
+                <ul>
+                  <li>✅ Keine Cloud, keine Server</li>
+                  <li>✅ Volle Kontrolle über deine Daten</li>
+                  <li>❌ Aber: Browser-Cache löschen = Daten weg!</li>
+                  <li>💡 Daher: Regelmäßig Backup erstellen!</li>
+                </ul>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-settings">
+              <h2>👤 Persönliche Angaben</h2>
+              
+              <div class="help-card">
+                <h3>📝 Persönliche Daten für PDF-Export</h3>
+                <p>Über das <strong>Person-Symbol</strong> oben rechts kannst du wichtige Angaben hinterlegen, die automatisch in exportierte PDFs eingefügt werden.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>👤 Dein Name</h3>
+                <p><strong>Wozu?</strong> Dein vollständiger Name erscheint als Ersteller auf dem PDF-Export und identifiziert dich eindeutig.</p>
+                <ul>
+                  <li>Wird im PDF-Header angezeigt</li>
+                  <li>Wichtig für offizielle Dokumentation</li>
+                  <li>Beispiel: "Max Mustermann"</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3>🏢 BG-Nummer (Bedarfsgemeinschaft)</h3>
+                <p><strong>Wozu?</strong> Deine Bedarfsgemeinschafts-Nummer vom <strong>Jobcenter</strong> - wichtig wenn du Bürgergeld beziehst.</p>
+                <ul>
+                  <li>Eindeutige Identifikation beim Jobcenter</li>
+                  <li>Wichtig für Nachweise und Fördermaßnahmen</li>
+                  <li>Beispiel: "BG-2024-12345"</li>
+                  <li><em>Optional:</em> Nur ausfüllen wenn zutreffend</li>
+                </ul>
+              </div>
+              
+              <div class="help-card">
+                <h3>🎫 KD-Nummer (Kundennummer)</h3>
+                <p><strong>Wozu?</strong> Deine Kundennummer bei der <strong>Agentur für Arbeit</strong> - wichtig für alle offiziellen Dokumente.</p>
+                <ul>
+                  <li>Eindeutige Identifikation bei der Agentur für Arbeit</li>
+                  <li>Erforderlich für Aktivierungs- und Vermittlungsgutscheine (AVGS)</li>
+                  <li>Wird auf Nachweisen verlangt</li>
+                  <li>Beispiel: "12345-6789-0"</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>💡 Warum diese Angaben?</h3>
+                <p>Die BG- und KD-Nummern dienen zur <strong>schnellen Identifikation</strong> bei Behörden. Der PDF-Export mit diesen Daten:</p>
+                <ul>
+                  <li>✅ Mitarbeiter können dich <strong>schneller im System finden</strong></li>
+                  <li>✅ Eindeutige <strong>Zuordnung</strong> zu deinem Fall</li>
+                  <li>✅ Beschleunigt die Bearbeitung und Nachweispflichten</li>
+                  <li>✅ Ist ein <strong>offizieller Nachweis</strong> deiner Bewerbungsaktivitäten</li>
+                </ul>
+                <p><strong>Nicht bei Jobcenter/Arbeitsagentur gemeldet?</strong> Dann kannst du die Felder leer lassen - der Export funktioniert trotzdem!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>� Benachrichtigungen</h3>
+                <p>Konfiguriere deine Erinnerungen für Termine und Follow-ups:</p>
+                <ul>
+                  <li><strong>Benachrichtigungen aktivieren/deaktivieren:</strong> Schalter ein/aus</li>
+                  <li><strong>Termin-Erinnerung:</strong> 1-7 Tage vorher (Slider)</li>
+                  <li><strong>Follow-up nach:</strong> 7-30 Tagen (Slider)</li>
+                  <li>Benachrichtigungen erscheinen als Hinweisfenster in der App</li>
+                  <li>Werden beim Laden der App und nach Änderungen geprüft</li>
+                </ul>
+                <p><strong>Tipp:</strong> Stelle die Tage so ein, dass du genug Zeit für Vorbereitung oder Nachfassen hast!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>�🔒 Datenschutz</h3>
+                <p>Diese Einstellungen werden <strong>nur lokal in deinem Browser</strong> gespeichert. Sie verlassen niemals dein Gerät!</p>
+                <ul>
+                  <li>Keine Übertragung ins Internet</li>
+                  <li>Keine Cloud-Speicherung</li>
+                  <li>Du behältst volle Kontrolle</li>
+                  <li>Bei JSON-Export werden sie mitgesichert</li>
+                </ul>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-tips">
+              <h2>💡 Tipps & Tricks</h2>
+              
+              <div class="help-card help-tip">
+                <h3>🎯 Effizient bewerben</h3>
+                <ul>
+                  <li>Nutze die <strong>Notizen</strong> für wichtige Details aus der Stellenanzeige</li>
+                  <li>Speichere die Original-Stellenanzeige als <strong>Link</strong> oder <strong>PDF</strong></li>
+                  <li>Trage <strong>Termine</strong> sofort ein, wenn du die Einladung erhältst</li>
+                  <li>Aktualisiere die <strong>Timeline</strong> bei jeder Rückmeldung</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>📈 Statistiken nutzen</h3>
+                <ul>
+                  <li>Prüfe regelmäßig die <strong>Follow-up</strong> Karte - nach 14 Tagen nachhaken!</li>
+                  <li>Analysiere deine <strong>Erfolgsquote</strong> pro Bewerbungskanal</li>
+                  <li>Nutze <strong>Zeitraum-Filter</strong> um Trends zu erkennen</li>
+                  <li>Eine Erfolgsquote von 5-10% ist normal!</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>🔍 Suche & Filter</h3>
+                <ul>
+                  <li>Nutze die <strong>Suchfunktion</strong> um schnell Firmen zu finden</li>
+                  <li>Filtere nach <strong>Status</strong> für bessere Übersicht</li>
+                  <li>Kombiniere Suche und Filter für präzise Ergebnisse</li>
+                  <li>Sortierung erfolgt automatisch nach Datum (neueste zuerst)</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>🌙 Dark Mode</h3>
+                <ul>
+                  <li>Klicke auf das <strong>Mond/Sonne Symbol</strong> zum Umschalten</li>
+                  <li>Schont die Augen bei längerer Nutzung</li>
+                  <li>Perfekt für abendliche Bewerbungssessions</li>
+                  <li>Einstellung wird gespeichert</li>
+                </ul>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>💾 Backup-Strategie</h3>
+                <ul>
+                  <li>Erstelle <strong>wöchentlich</strong> ein JSON-Backup</li>
+                  <li>Speichere es an mehreren Orten (PC, USB, Cloud)</li>
+                  <li>Benenne Dateien mit Datum: <code>jobmate-2025-12-16.json</code></li>
+                  <li>Vor Browser-Updates oder Wartungen: Backup!</li>
+                </ul>
+              </div>
+            </div>
+            
+            
+            <div class="help-section" id="help-faq">
+              <h2>❓ Häufig gestellte Fragen</h2>
+              
+              <div class="help-card">
+                <h3>Wo werden meine Daten gespeichert?</h3>
+                <p>Alle Daten werden <strong>lokal in deinem Browser</strong> gespeichert (LocalStorage). Keine Cloud, keine Server, keine Übertragung ins Internet. Du hast volle Kontrolle!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Was passiert wenn ich den Browser-Cache lösche?</h3>
+                <p>⚠️ Dann sind alle Daten weg! Deshalb: Regelmäßig <strong>JSON-Backups</strong> erstellen.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Kann ich Jobmate auf mehreren Geräten nutzen?</h3>
+                <p>Die Daten sind pro Browser/Gerät gespeichert. Um zwischen Geräten zu wechseln: <strong>Exportiere</strong> die Daten auf Gerät A, <strong>importiere</strong> sie auf Gerät B.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Wie groß dürfen hochgeladene Dokumente sein?</h3>
+                <p>Maximal <strong>5 MB pro Datei</strong>. Unterstützt: PDF, DOC, DOCX, JPG, PNG</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Funktioniert Jobmate offline?</h3>
+                <p>Ja! Einmal geladen, funktioniert die App auch ohne Internetverbindung. Alle Daten sind lokal verfügbar.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Kann ich gelöschte Einträge wiederherstellen?</h3>
+                <p>Nur wenn du vorher ein <strong>JSON-Backup</strong> erstellt hast. Gelöschte Daten sind sonst unwiederbringlich weg!</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Warum zeigt die Statistik andere Zahlen als die Dashboard-Karten?</h3>
+                <p>In den erweiterten Statistiken kannst du einen <strong>Zeitraum wählen</strong>. Die Dashboard-Karten zeigen immer <strong>alle</strong> Bewerbungen.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Ist Jobmate DSGVO-konform?</h3>
+                <p>Ja! Da alle Daten <strong>nur lokal</strong> gespeichert werden und keine Übertragung stattfindet, gibt es keine Datenschutzbedenken. Deine Daten verlassen nie deinen Computer.</p>
+              </div>
+              
+              <div class="help-card">
+                <h3>Kann ich Jobmate erweitern oder anpassen?</h3>
+                <p>Jobmate ist Open Source! Du kannst den Code einsehen und nach deinen Wünschen anpassen.</p>
+              </div>
+              
+              <div class="help-card help-tip">
+                <h3>📧 Support & Feedback</h3>
+                <p>Du hast Fragen, Probleme oder Verbesserungsvorschläge?</p>
+                <p>Schreib mir gerne eine E-Mail an: <strong><a href="mailto:michael@polarco.de">michael@polarco.de</a></strong></p>
+                <p>Ich helfe dir gerne weiter und freue mich über dein Feedback! 💙</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<nav class="mobile-nav" id="mobileNav" aria-label="Mobile Navigation">
+  <button type="button" class="mobile-nav-item active" data-page="dashboard">
+    <i data-lucide="home"></i>
+    <span>Home</span>
+  </button>
+  <button type="button" class="mobile-nav-item" data-page="applications">
+    <i data-lucide="list-checks"></i>
+    <span>Bewerbungen</span>
+  </button>
+  <button type="button" class="mobile-nav-item" data-page="stats">
+    <i data-lucide="bar-chart-3"></i>
+    <span>Stats</span>
+  </button>
+  <button type="button" class="mobile-nav-item" data-page="settings">
+    <i data-lucide="settings"></i>
+    <span>Setup</span>
+  </button>
+  <button type="button" class="mobile-nav-item" data-page="help">
+    <i data-lucide="help-circle"></i>
+    <span>Hilfe</span>
+  </button>
+</nav>
+
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
