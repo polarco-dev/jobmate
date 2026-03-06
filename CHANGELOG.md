@@ -11,6 +11,15 @@ und Versionen folgen [Semantic Versioning](https://semver.org/).
 - Kleine UX-Verbesserungen im Form-Modal und in der mobilen Navigation.
 - Erweiterte Validierung für Import-Dateien.
 
+## [1.1.1] - 2026-03-06
+
+### Changed
+- In der mobilen Ansicht die Seitenüberschrift im Tab `Stats` (Icon + Text `Erweiterte Statistiken`) ausgeblendet.
+- In der mobilen Ansicht die Seitenüberschrift im Tab `Setup` (Icon + Text `Einstellungen`) ausgeblendet.
+- In der mobilen Ansicht die Seitenüberschrift im Tab `Hilfe` (Icon + Text `Hilfe & Anleitungen`) ausgeblendet.
+- Logo in der mobilen Header-Ansicht leicht verkleinert.
+- Meta-Tags im `index.html` auf eine vollständige SEO-/Social-Preview-Struktur erweitert (u. a. `description`, `canonical`, Open Graph, Twitter Cards).
+
 ## [1.1.0] - 2026-03-05
 
 ### Added

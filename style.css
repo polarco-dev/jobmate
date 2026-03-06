@@ -853,6 +853,14 @@ body.sidebar-open .wrap{
   color: var(--primary);
 }
 
+.settings-title-desktop{
+  display: inline;
+}
+
+.settings-title-mobile{
+  display: none;
+}
+
 .page-content{
   background: var(--surface);
   padding: 2rem;
@@ -5012,14 +5020,34 @@ tbody tr {
     gap: 0.75rem;
   }
 
+  #statsPage .page-header,
+  #settingsPage .page-header,
+  #helpPage .page-header{
+    display: none;
+  }
+
+  #statsPage .page-header h1,
+  #settingsPage .page-header h1,
   #helpPage .page-header h1{
     font-size: 1.25rem;
     gap: 0.5rem;
   }
 
+  #statsPage .page-header h1 i,
+  #settingsPage .page-header h1 i,
   #helpPage .page-header h1 i{
     width: 22px;
     height: 22px;
+  }
+
+  #settingsPage .settings-title-desktop,
+  #settingsTitle .settings-title-desktop{
+    display: none;
+  }
+
+  #settingsPage .settings-title-mobile,
+  #settingsTitle .settings-title-mobile{
+    display: inline;
   }
 
   #helpPage .help-container{
@@ -5294,9 +5322,12 @@ tbody tr {
   }
 
   .header-logo img{
-    width: 96px !important;
-    height: 56px !important;
-    max-width: 96px;
+    width: 106px !important;
+    height: 62px !important;
+    max-width: 106px;
+    object-fit: contain;
     image-rendering: auto !important;
+    image-rendering: -webkit-optimize-contrast !important;
+    filter: contrast(1.06) saturate(1.03);
   }
 }

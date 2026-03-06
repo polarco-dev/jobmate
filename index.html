@@ -2,8 +2,38 @@
 <html lang="de">
 <head>
 <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bewerbungsübersicht</title>
+<meta name="HandheldFriendly" content="true" />
+<meta name="author" content="Michael Weißgerber" />
+<title>Jobmate | Bewerbungsübersicht</title>
+<meta
+  name="description"
+  content="Jobmate: Lokale Web-App zur strukturierten Verwaltung von Bewerbungen mit Status, Statistiken, Timeline und Export."
+/>
+<link rel="canonical" href="https://polarco.de/projekte/jobmate/demo/" />
+<meta name="robots" content="index,follow" />
+<meta name="theme-color" content="#5b5fff" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="PolarCo" />
+<meta property="og:title" content="Jobmate | Bewerbungsübersicht" />
+<meta
+  property="og:description"
+  content="Jobmate: Lokale Web-App zur strukturierten Verwaltung von Bewerbungen mit Status, Statistiken, Timeline und Export."
+/>
+<meta property="og:url" content="https://polarco.de/projekte/jobmate/demo/" />
+<meta property="og:image" content="https://polarco.de/assets/og.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Jobmate | Bewerbungsübersicht" />
+<meta
+  name="twitter:description"
+  content="Jobmate: Lokale Web-App zur strukturierten Verwaltung von Bewerbungen mit Status, Statistiken, Timeline und Export."
+/>
+<meta name="twitter:image" content="https://polarco.de/assets/og.jpg" />
 
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -76,7 +106,7 @@
         <i data-lucide="menu"></i>
       </button>
       <button type="button" class="header-logo" id="headerLogo" title="Zum Dashboard">
-        <img src="assets/img/logo/jobmate-logo.png" alt="Jobmate Logo">
+        <img src="assets/img/logo/jobmate-logo.png" srcset="assets/img/logo/jobmate-logo@2x.png 2x" alt="Jobmate Logo">
       </button>
     </div>
     <div class="title">Bewerbungsübersicht</div>
@@ -408,7 +438,8 @@
       <div class="page-header">
         <h1>
           <i data-lucide="settings"></i>
-          Persönliche Angaben & Einstellungen
+          <span class="settings-title-desktop">Persönliche Angaben & Einstellungen</span>
+          <span class="settings-title-mobile">Einstellungen</span>
         </h1>
       </div>
       <div class="page-content">
@@ -1223,7 +1254,10 @@
   <div class="modal" id="settingsModal" aria-hidden="true" style="display: none !important;">
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <div class="sheethead">
-        <div class="sheettitle" id="settingsTitle">Persönliche Angaben & Einstellungen</div>
+        <div class="sheettitle" id="settingsTitle">
+          <span class="settings-title-desktop">Persönliche Angaben & Einstellungen</span>
+          <span class="settings-title-mobile">Einstellungen</span>
+        </div>
         <button class="btn" id="btnSettingsClose">Schließen</button>
       </div>
       <div class="sheetbody">
